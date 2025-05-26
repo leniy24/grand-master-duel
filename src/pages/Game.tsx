@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Crown, Flag, RotateCcw, Home } from 'lucide-react';
+import { Crown, Flag, RotateCcw, Home, Circle } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface Player {
@@ -169,8 +169,8 @@ const Game = () => {
   };
 
   if (!gameState) {
-    return <div className="min-h-screen bg-slate-900 flex items-center justify-center">
-      <div className="text-white">Loading...</div>
+    return <div className="min-h-screen bg-gray-950 flex items-center justify-center">
+      <div className="text-gray-300">Loading...</div>
     </div>;
   }
 
@@ -178,38 +178,49 @@ const Game = () => {
   const opponentPlayer = getOpponentPlayer();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-800 p-4">
+    <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-black p-4">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
           <Button
             onClick={() => navigate('/')}
             variant="outline"
-            className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+            className="bg-gray-800/80 border-gray-700 text-gray-200 hover:bg-gray-700 transition-all duration-200"
           >
             <Home className="w-4 h-4 mr-2" />
             Home
           </Button>
           
           <div className="text-center">
-            <h1 className="text-2xl font-bold text-white mb-1">Chess Master</h1>
-            <p className="text-slate-300 text-sm">
-              {currentPlayer?.name}'s turn ({currentPlayer?.color})
-            </p>
+            <h1 className="text-3xl font-bold text-white mb-2 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+              Chess Master
+            </h1>
+            <div className="flex items-center justify-center gap-3 text-gray-300">
+              <div className="flex items-center gap-1">
+                {currentPlayer?.color === 'white' ? (
+                  <Circle className="w-4 h-4 fill-white text-white" />
+                ) : (
+                  <Circle className="w-4 h-4 fill-gray-800 text-gray-800 border border-gray-400 rounded-full" />
+                )}
+                <span className="font-medium text-white">{currentPlayer?.name}</span>
+              </div>
+              <span className="text-gray-500">•</span>
+              <span className="text-sm">Turn</span>
+            </div>
           </div>
           
           <div className="flex gap-2">
             <Button
               onClick={() => setIsFlipped(!isFlipped)}
               variant="outline"
-              className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+              className="bg-gray-800/80 border-gray-700 text-gray-200 hover:bg-gray-700 transition-all duration-200"
             >
               <RotateCcw className="w-4 h-4" />
             </Button>
             <Button
               onClick={handleResign}
               variant="destructive"
-              className="bg-red-600 hover:bg-red-700"
+              className="bg-red-700 hover:bg-red-600 border-red-600 transition-all duration-200"
             >
               <Flag className="w-4 h-4 mr-2" />
               Resign
@@ -221,15 +232,26 @@ const Game = () => {
           {/* Player Info Sidebar */}
           <div className="space-y-4">
             {/* Opponent */}
-            <Card className="backdrop-blur-lg bg-white/10 border-white/20 p-4">
+            <Card className="backdrop-blur-lg bg-gray-900/60 border-gray-700 p-4 shadow-xl">
               <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="text-white font-semibold">{opponentPlayer?.name}</h3>
-                  <p className="text-slate-300 text-sm capitalize">{opponentPlayer?.color} pieces</p>
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2">
+                    {opponentPlayer?.color === 'white' ? (
+                      <Circle className="w-5 h-5 fill-white text-white" />
+                    ) : (
+                      <Circle className="w-5 h-5 fill-gray-800 text-gray-800 border border-gray-400 rounded-full" />
+                    )}
+                    <div>
+                      <h3 className="text-white font-semibold text-lg">{opponentPlayer?.name}</h3>
+                      <p className="text-gray-400 text-sm font-medium">
+                        {opponentPlayer?.color === 'white' ? 'White Pieces' : 'Black Pieces'}
+                      </p>
+                    </div>
+                  </div>
                 </div>
                 <div className="text-right">
-                  <div className={`text-2xl font-mono ${
-                    gameState.currentTurn !== opponentPlayer?.color ? 'text-white' : 'text-green-400'
+                  <div className={`text-2xl font-mono font-bold ${
+                    gameState.currentTurn !== opponentPlayer?.color ? 'text-gray-300' : 'text-green-400'
                   }`}>
                     {formatTime(opponentPlayer?.timeLeft || 0)}
                   </div>
@@ -241,15 +263,26 @@ const Game = () => {
             </Card>
 
             {/* Current Player */}
-            <Card className="backdrop-blur-lg bg-white/10 border-white/20 p-4">
+            <Card className="backdrop-blur-lg bg-gray-900/60 border-gray-700 p-4 shadow-xl">
               <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="text-white font-semibold">{currentPlayer?.name}</h3>
-                  <p className="text-slate-300 text-sm capitalize">{currentPlayer?.color} pieces</p>
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2">
+                    {currentPlayer?.color === 'white' ? (
+                      <Circle className="w-5 h-5 fill-white text-white" />
+                    ) : (
+                      <Circle className="w-5 h-5 fill-gray-800 text-gray-800 border border-gray-400 rounded-full" />
+                    )}
+                    <div>
+                      <h3 className="text-white font-semibold text-lg">{currentPlayer?.name}</h3>
+                      <p className="text-gray-400 text-sm font-medium">
+                        {currentPlayer?.color === 'white' ? 'White Pieces' : 'Black Pieces'}
+                      </p>
+                    </div>
+                  </div>
                 </div>
                 <div className="text-right">
-                  <div className={`text-2xl font-mono ${
-                    gameState.currentTurn === currentPlayer?.color ? 'text-green-400' : 'text-white'
+                  <div className={`text-2xl font-mono font-bold ${
+                    gameState.currentTurn === currentPlayer?.color ? 'text-green-400' : 'text-gray-300'
                   }`}>
                     {formatTime(currentPlayer?.timeLeft || 0)}
                   </div>
@@ -263,17 +296,17 @@ const Game = () => {
 
           {/* Chess Board */}
           <div className="lg:col-span-2 relative">
-            <div className="bg-white/5 p-4 rounded-lg backdrop-blur-lg border border-white/10">
+            <div className="bg-gray-800/30 p-6 rounded-xl backdrop-blur-lg border border-gray-700 shadow-2xl">
               <Chessboard
                 position={game.fen()}
                 onPieceDrop={makeMove}
                 boardOrientation={isFlipped ? 'black' : 'white'}
                 customBoardStyle={{
-                  borderRadius: '8px',
-                  boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.3)',
+                  borderRadius: '12px',
+                  boxShadow: '0 25px 50px -12px rgb(0 0 0 / 0.8)',
                 }}
-                customDarkSquareStyle={{ backgroundColor: '#4f46e5' }}
-                customLightSquareStyle={{ backgroundColor: '#e0e7ff' }}
+                customDarkSquareStyle={{ backgroundColor: '#374151' }}
+                customLightSquareStyle={{ backgroundColor: '#f3f4f6' }}
               />
             </div>
           </div>
@@ -287,36 +320,36 @@ const Game = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+            className="fixed inset-0 bg-black/90 backdrop-blur-sm flex items-center justify-center z-50 p-4"
           >
             <motion.div
               initial={{ scale: 0.5, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.5, opacity: 0 }}
-              className={`p-8 rounded-2xl max-w-md w-full text-center ${
+              className={`p-8 rounded-2xl max-w-md w-full text-center border ${
                 gameOver.type === 'checkmate' 
-                  ? 'bg-gradient-to-br from-red-600 to-red-800' 
-                  : 'bg-gradient-to-br from-gray-600 to-gray-800'
-              }`}
+                  ? 'bg-gradient-to-br from-red-900/90 to-red-800/90 border-red-600' 
+                  : 'bg-gradient-to-br from-gray-800/90 to-gray-700/90 border-gray-600'
+              } backdrop-blur-lg shadow-2xl`}
             >
               <div className="mb-6">
                 {gameOver.type === 'checkmate' ? (
                   <Crown className="w-16 h-16 mx-auto text-yellow-400 mb-4" />
                 ) : (
-                  <div className="w-16 h-16 mx-auto mb-4 bg-gray-400 rounded-full flex items-center justify-center">
+                  <div className="w-16 h-16 mx-auto mb-4 bg-gray-500 rounded-full flex items-center justify-center">
                     <div className="w-8 h-8 bg-white rounded-full" />
                   </div>
                 )}
                 <h2 className="text-3xl font-bold text-white mb-2">
                   {gameOver.type === 'checkmate' ? 'Checkmate!' : 'Draw!'}
                 </h2>
-                <p className="text-white/90 text-lg">{gameOver.message}</p>
+                <p className="text-gray-200 text-lg">{gameOver.message}</p>
               </div>
               
               <div className="space-y-3">
                 <Button
                   onClick={handleNewGame}
-                  className="w-full bg-white/20 hover:bg-white/30 text-white border border-white/30"
+                  className="w-full bg-gray-700 hover:bg-gray-600 text-white border border-gray-600 transition-all duration-200"
                 >
                   New Game
                 </Button>

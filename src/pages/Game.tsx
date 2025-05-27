@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback } from 'react';
 import { Chess } from 'chess.js';
 import { Chessboard } from 'react-chessboard';
@@ -137,6 +136,15 @@ const Game = () => {
     }
     return false;
   }, [game, gameState]);
+
+  // Function to check if a move is valid before allowing the piece to be dropped
+  const isDragAllowed = useCallback((piece: any) => {
+    if (gameOver) return false;
+    if (!gameState) return false;
+    
+    const pieceColor = piece.color;
+    return pieceColor === gameState.currentTurn;
+  }, [gameState, gameOver]);
 
   const handleResign = () => {
     if (!gameState) return;
@@ -297,17 +305,29 @@ const Game = () => {
           {/* Chess Board */}
           <div className="lg:col-span-2 relative">
             <div className="bg-gray-800/30 p-6 rounded-xl backdrop-blur-lg border border-gray-700 shadow-2xl">
-              <Chessboard
-                position={game.fen()}
-                onPieceDrop={makeMove}
-                boardOrientation={isFlipped ? 'black' : 'white'}
-                customBoardStyle={{
-                  borderRadius: '12px',
-                  boxShadow: '0 25px 50px -12px rgb(0 0 0 / 0.8)',
-                }}
-                customDarkSquareStyle={{ backgroundColor: '#374151' }}
-                customLightSquareStyle={{ backgroundColor: '#f3f4f6' }}
-              />
+              <div className="relative overflow-hidden rounded-xl">
+                <Chessboard
+                  position={game.fen()}
+                  onPieceDrop={makeMove}
+                  boardOrientation={isFlipped ? 'black' : 'white'}
+                  isDraggablePiece={(piece) => isDragAllowed(piece)}
+                  customBoardStyle={{
+                    borderRadius: '12px',
+                    boxShadow: '0 25px 50px -12px rgb(0 0 0 / 0.8)',
+                  }}
+                  customDarkSquareStyle={{ backgroundColor: '#374151' }}
+                  customLightSquareStyle={{ backgroundColor: '#f3f4f6' }}
+                  customDropSquareStyle={{
+                    boxShadow: 'inset 0 0 1px 6px rgba(255,255,0,0.75)'
+                  }}
+                  customPremoveDarkSquareStyle={{
+                    backgroundColor: '#CF6679'
+                  }}
+                  customPremoveLightSquareStyle={{
+                    backgroundColor: '#F7DC6F'
+                  }}
+                />
+              </div>
             </div>
           </div>
         </div>

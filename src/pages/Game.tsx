@@ -138,11 +138,12 @@ const Game = () => {
   }, [game, gameState]);
 
   // Function to check if a move is valid before allowing the piece to be dropped
-  const isDragAllowed = useCallback((piece: any) => {
+  const isDragAllowed = useCallback((piece: any, sourceSquare: string) => {
     if (gameOver) return false;
     if (!gameState) return false;
     
-    const pieceColor = piece.color;
+    // Get the piece color from the piece notation (first character indicates color)
+    const pieceColor = piece.charAt(0) === 'w' ? 'white' : 'black';
     return pieceColor === gameState.currentTurn;
   }, [gameState, gameOver]);
 
@@ -310,7 +311,7 @@ const Game = () => {
                   position={game.fen()}
                   onPieceDrop={makeMove}
                   boardOrientation={isFlipped ? 'black' : 'white'}
-                  isDraggablePiece={(piece) => isDragAllowed(piece)}
+                  isDraggablePiece={isDragAllowed}
                   customBoardStyle={{
                     borderRadius: '12px',
                     boxShadow: '0 25px 50px -12px rgb(0 0 0 / 0.8)',

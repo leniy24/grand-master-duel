@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useCallback } from 'react';
 import { Chess } from 'chess.js';
 import { Chessboard } from 'react-chessboard';
@@ -177,6 +178,15 @@ const Game = () => {
     return gameState.currentTurn === gameState.playerA.color ? gameState.playerB : gameState.playerA;
   };
 
+  // Prevent default drag behavior on the container to stop auto-scrolling
+  const handleDragStart = (e: React.DragEvent) => {
+    e.preventDefault();
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+  };
+
   if (!gameState) {
     return <div className="min-h-screen bg-gray-950 flex items-center justify-center">
       <div className="text-gray-300">Loading...</div>
@@ -187,7 +197,7 @@ const Game = () => {
   const opponentPlayer = getOpponentPlayer();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-black p-4">
+    <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-black p-4 overflow-hidden">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
@@ -305,7 +315,11 @@ const Game = () => {
 
           {/* Chess Board */}
           <div className="lg:col-span-2 relative">
-            <div className="bg-gray-800/30 p-6 rounded-xl backdrop-blur-lg border border-gray-700 shadow-2xl">
+            <div 
+              className="bg-gray-800/30 p-6 rounded-xl backdrop-blur-lg border border-gray-700 shadow-2xl"
+              onDragStart={handleDragStart}
+              onDragOver={handleDragOver}
+            >
               <div className="relative overflow-hidden rounded-xl">
                 <Chessboard
                   position={game.fen()}

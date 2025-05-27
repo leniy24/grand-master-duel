@@ -48,23 +48,6 @@ const Game = () => {
     }
   }, [navigate]);
 
-  // Prevent auto-scrolling during drag
-  useEffect(() => {
-    const preventScroll = (e: Event) => {
-      if ((e.target as HTMLElement).closest('.chessboard')) {
-        e.preventDefault();
-      }
-    };
-
-    document.addEventListener('dragover', preventScroll, { passive: false });
-    document.addEventListener('touchmove', preventScroll, { passive: false });
-
-    return () => {
-      document.removeEventListener('dragover', preventScroll);
-      document.removeEventListener('touchmove', preventScroll);
-    };
-  }, []);
-
   // Timer logic
   useEffect(() => {
     if (!gameState || gameOver) return;
@@ -204,7 +187,7 @@ const Game = () => {
   const opponentPlayer = getOpponentPlayer();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-black p-4" style={{ overflow: 'hidden' }}>
+    <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-black p-4">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
@@ -321,30 +304,32 @@ const Game = () => {
           </div>
 
           {/* Chess Board */}
-          <div className="lg:col-span-2 relative">
+          <div className="lg:col-span-2">
             <div className="bg-gray-800/30 p-6 rounded-xl backdrop-blur-lg border border-gray-700 shadow-2xl">
-              <div className="relative overflow-hidden rounded-xl chessboard">
-                <Chessboard
-                  position={game.fen()}
-                  onPieceDrop={makeMove}
-                  boardOrientation={isFlipped ? 'black' : 'white'}
-                  isDraggablePiece={isDragAllowed}
-                  customBoardStyle={{
-                    borderRadius: '12px',
-                    boxShadow: '0 25px 50px -12px rgb(0 0 0 / 0.8)',
-                  }}
-                  customDarkSquareStyle={{ backgroundColor: '#374151' }}
-                  customLightSquareStyle={{ backgroundColor: '#f3f4f6' }}
-                  customDropSquareStyle={{
-                    boxShadow: 'inset 0 0 1px 6px rgba(255,255,0,0.75)'
-                  }}
-                  customPremoveDarkSquareStyle={{
-                    backgroundColor: '#CF6679'
-                  }}
-                  customPremoveLightSquareStyle={{
-                    backgroundColor: '#F7DC6F'
-                  }}
-                />
+              <div className="relative rounded-xl">
+                <div className="aspect-square w-full">
+                  <Chessboard
+                    position={game.fen()}
+                    onPieceDrop={makeMove}
+                    boardOrientation={isFlipped ? 'black' : 'white'}
+                    isDraggablePiece={isDragAllowed}
+                    customBoardStyle={{
+                      borderRadius: '12px',
+                      boxShadow: '0 25px 50px -12px rgb(0 0 0 / 0.8)',
+                    }}
+                    customDarkSquareStyle={{ backgroundColor: '#374151' }}
+                    customLightSquareStyle={{ backgroundColor: '#f3f4f6' }}
+                    customDropSquareStyle={{
+                      boxShadow: 'inset 0 0 1px 6px rgba(255,255,0,0.75)'
+                    }}
+                    customPremoveDarkSquareStyle={{
+                      backgroundColor: '#CF6679'
+                    }}
+                    customPremoveLightSquareStyle={{
+                      backgroundColor: '#F7DC6F'
+                    }}
+                  />
+                </div>
               </div>
             </div>
           </div>

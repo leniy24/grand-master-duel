@@ -31,7 +31,6 @@ const Game = () => {
   } | null>(null);
   const [isFlipped, setIsFlipped] = useState(false);
 
-  // Load game state from sessionStorage
   useEffect(() => {
     const storedState = sessionStorage.getItem('chessGameState');
     if (!storedState) {
@@ -42,7 +41,6 @@ const Game = () => {
     const state = JSON.parse(storedState);
     setGameState(state);
     
-    // Flip board if player A is black
     if (state.playerA.color === 'black') {
       setIsFlipped(true);
     }
@@ -100,7 +98,6 @@ const Game = () => {
         const newGame = new Chess(game.fen());
         setGame(newGame);
         
-        // Switch turns
         setGameState(prev => {
           if (!prev) return prev;
           return {
@@ -109,7 +106,6 @@ const Game = () => {
           };
         });
 
-        // Check game status
         if (newGame.isCheckmate()) {
           const winner = gameState?.currentTurn === gameState?.playerA.color ? 
             gameState.playerA.name : gameState?.playerB.name;
@@ -137,12 +133,10 @@ const Game = () => {
     return false;
   }, [game, gameState]);
 
-  // Function to check if a move is valid before allowing the piece to be dropped
   const isDragAllowed = useCallback((args: { piece: string; sourceSquare: string }) => {
     if (gameOver) return false;
     if (!gameState) return false;
     
-    // Get the piece color from the piece notation (first character indicates color)
     const pieceColor = args.piece.charAt(0) === 'w' ? 'white' : 'black';
     return pieceColor === gameState.currentTurn;
   }, [gameState, gameOver]);
@@ -313,6 +307,7 @@ const Game = () => {
                     onPieceDrop={makeMove}
                     boardOrientation={isFlipped ? 'black' : 'white'}
                     isDraggablePiece={isDragAllowed}
+                    animationDuration={200}
                     customBoardStyle={{
                       borderRadius: '12px',
                       boxShadow: '0 25px 50px -12px rgb(0 0 0 / 0.8)',
@@ -327,6 +322,9 @@ const Game = () => {
                     }}
                     customPremoveLightSquareStyle={{
                       backgroundColor: '#F7DC6F'
+                    }}
+                    dragHandleStyle={{
+                      cursor: 'grab'
                     }}
                   />
                 </div>

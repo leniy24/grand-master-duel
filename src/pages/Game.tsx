@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback } from 'react';
 import { Chess } from 'chess.js';
 import { Chessboard } from 'react-chessboard';
@@ -327,6 +326,11 @@ const Game = () => {
                   }}
                   customPremoveLightSquareStyle={{
                     backgroundColor: '#F7DC6F'
+                  }}
+                  customDragPreviewStyle={{
+                    transform: 'translate(-50%, -50%)',
+                    pointerEvents: 'none',
+                    zIndex: 1000
                   }}
                 />
               </div>

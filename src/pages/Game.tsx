@@ -1,13 +1,14 @@
+
 import React, { useState, useEffect, useCallback } from 'react';
 import { Chess } from 'chess.js';
-import { Chessboard } from 'react-chessboard';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { Crown, Flag, RotateCcw, Home, Circle } from 'lucide-react';
+import { Crown } from 'lucide-react';
 import { toast } from 'sonner';
-import { algebraicToPosition, isValidPosition } from '@/lib/chess-validator';
+import ChessBoard from '@/components/ChessBoard';
+import GameControls from '@/components/GameControls';
+import PlayerInfo from '@/components/PlayerInfo';
 
 interface Player {
   name: string;
@@ -80,26 +81,11 @@ const Game = () => {
     return () => clearInterval(interval);
   }, [gameState, gameOver]);
 
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
-  };
-
-  const makeMove = useCallback((sourceSquare: string, targetSquare: string) => {
+  const makeMove = useCallback((from: string, to: string) => {
     try {
-      // Validate source and target positions
-      const sourcePos = algebraicToPosition(sourceSquare);
-      const targetPos = algebraicToPosition(targetSquare);
-      
-      if (!sourcePos || !targetPos || !isValidPosition(sourcePos) || !isValidPosition(targetPos)) {
-        toast.error('Invalid move position');
-        return false;
-      }
-
       const move = game.move({
-        from: sourceSquare,
-        to: targetSquare,
+        from,
+        to,
         promotion: 'q'
       });
 
@@ -143,14 +129,6 @@ const Game = () => {
     return false;
   }, [game, gameState]);
 
-  const isDragAllowed = useCallback((args: { piece: string; sourceSquare: string }) => {
-    if (gameOver) return false;
-    if (!gameState) return false;
-    
-    const pieceColor = args.piece.charAt(0) === 'w' ? 'white' : 'black';
-    return pieceColor === gameState.currentTurn;
-  }, [gameState, gameOver]);
-
   const handleResign = () => {
     if (!gameState) return;
     
@@ -189,155 +167,47 @@ const Game = () => {
 
   const currentPlayer = getCurrentPlayer();
   const opponentPlayer = getOpponentPlayer();
+  const canMove = !gameOver;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-black p-4">
       <div className="max-w-4xl mx-auto">
-        {/* Header */}
-        <div className="flex justify-between items-center mb-6">
-          <Button
-            onClick={() => navigate('/')}
-            variant="outline"
-            className="bg-gray-800/80 border-gray-700 text-gray-200 hover:bg-gray-700 transition-all duration-200"
-          >
-            <Home className="w-4 h-4 mr-2" />
-            Home
-          </Button>
-          
-          <div className="text-center">
-            <h1 className="text-3xl font-bold text-white mb-2 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-              Chess Master
-            </h1>
-            <div className="flex items-center justify-center gap-3 text-gray-300">
-              <div className="flex items-center gap-1">
-                {currentPlayer?.color === 'white' ? (
-                  <Circle className="w-4 h-4 fill-white text-white" />
-                ) : (
-                  <Circle className="w-4 h-4 fill-gray-800 text-gray-800 border border-gray-400 rounded-full" />
-                )}
-                <span className="font-medium text-white">{currentPlayer?.name}</span>
-              </div>
-              <span className="text-gray-500">•</span>
-              <span className="text-sm">Turn</span>
-            </div>
-          </div>
-          
-          <div className="flex gap-2">
-            <Button
-              onClick={() => setIsFlipped(!isFlipped)}
-              variant="outline"
-              className="bg-gray-800/80 border-gray-700 text-gray-200 hover:bg-gray-700 transition-all duration-200"
-            >
-              <RotateCcw className="w-4 h-4" />
-            </Button>
-            <Button
-              onClick={handleResign}
-              variant="destructive"
-              className="bg-red-700 hover:bg-red-600 border-red-600 transition-all duration-200"
-            >
-              <Flag className="w-4 h-4 mr-2" />
-              Resign
-            </Button>
-          </div>
-        </div>
+        <GameControls
+          onFlipBoard={() => setIsFlipped(!isFlipped)}
+          onResign={handleResign}
+          onGoHome={() => navigate('/')}
+        />
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Player Info Sidebar */}
           <div className="space-y-4">
-            {/* Opponent */}
-            <Card className="backdrop-blur-lg bg-gray-900/60 border-gray-700 p-4 shadow-xl">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="flex items-center gap-2">
-                    {opponentPlayer?.color === 'white' ? (
-                      <Circle className="w-5 h-5 fill-white text-white" />
-                    ) : (
-                      <Circle className="w-5 h-5 fill-gray-800 text-gray-800 border border-gray-400 rounded-full" />
-                    )}
-                    <div>
-                      <h3 className="text-white font-semibold text-lg">{opponentPlayer?.name}</h3>
-                      <p className="text-gray-400 text-sm font-medium">
-                        {opponentPlayer?.color === 'white' ? 'White Pieces' : 'Black Pieces'}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <div className={`text-2xl font-mono font-bold ${
-                    gameState.currentTurn !== opponentPlayer?.color ? 'text-gray-300' : 'text-green-400'
-                  }`}>
-                    {formatTime(opponentPlayer?.timeLeft || 0)}
-                  </div>
-                  {gameState.currentTurn !== opponentPlayer?.color && (
-                    <div className="w-2 h-2 bg-green-400 rounded-full mx-auto animate-pulse" />
-                  )}
-                </div>
-              </div>
-            </Card>
-
-            {/* Current Player */}
-            <Card className="backdrop-blur-lg bg-gray-900/60 border-gray-700 p-4 shadow-xl">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="flex items-center gap-2">
-                    {currentPlayer?.color === 'white' ? (
-                      <Circle className="w-5 h-5 fill-white text-white" />
-                    ) : (
-                      <Circle className="w-5 h-5 fill-gray-800 text-gray-800 border border-gray-400 rounded-full" />
-                    )}
-                    <div>
-                      <h3 className="text-white font-semibold text-lg">{currentPlayer?.name}</h3>
-                      <p className="text-gray-400 text-sm font-medium">
-                        {currentPlayer?.color === 'white' ? 'White Pieces' : 'Black Pieces'}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <div className={`text-2xl font-mono font-bold ${
-                    gameState.currentTurn === currentPlayer?.color ? 'text-green-400' : 'text-gray-300'
-                  }`}>
-                    {formatTime(currentPlayer?.timeLeft || 0)}
-                  </div>
-                  {gameState.currentTurn === currentPlayer?.color && (
-                    <div className="w-2 h-2 bg-green-400 rounded-full mx-auto animate-pulse" />
-                  )}
-                </div>
-              </div>
-            </Card>
+            {opponentPlayer && (
+              <PlayerInfo
+                player={opponentPlayer}
+                isCurrentTurn={gameState.currentTurn === opponentPlayer.color}
+                position="top"
+              />
+            )}
+            
+            {currentPlayer && (
+              <PlayerInfo
+                player={currentPlayer}
+                isCurrentTurn={gameState.currentTurn === currentPlayer.color}
+                position="bottom"
+              />
+            )}
           </div>
 
           {/* Chess Board */}
           <div className="lg:col-span-2">
             <div className="bg-gray-800/30 p-6 rounded-xl backdrop-blur-lg border border-gray-700 shadow-2xl">
-              <div className="relative rounded-xl">
-                <div className="aspect-square w-full">
-                  <Chessboard
-                    position={game.fen()}
-                    onPieceDrop={makeMove}
-                    boardOrientation={isFlipped ? 'black' : 'white'}
-                    isDraggablePiece={isDragAllowed}
-                    customBoardStyle={{
-                      borderRadius: '12px',
-                      boxShadow: '0 25px 50px -12px rgb(0 0 0 / 0.8)',
-                    }}
-                    customDarkSquareStyle={{ backgroundColor: '#374151' }}
-                    customLightSquareStyle={{ backgroundColor: '#f3f4f6' }}
-                    customDropSquareStyle={{
-                      boxShadow: 'inset 0 0 1px 6px rgba(255,255,0,0.75)'
-                    }}
-                    customPremoveDarkSquareStyle={{
-                      backgroundColor: '#CF6679'
-                    }}
-                    customPremoveLightSquareStyle={{
-                      backgroundColor: '#F7DC6F'
-                    }}
-                    animationDuration={200}
-                    arePiecesDraggable={true}
-                    snapToCursor={true}
-                  />
-                </div>
-              </div>
+              <ChessBoard
+                game={game}
+                onMove={makeMove}
+                isFlipped={isFlipped}
+                canMove={canMove && gameState.currentTurn === currentPlayer?.color}
+                currentPlayerColor={currentPlayer?.color || 'white'}
+              />
             </div>
           </div>
         </div>

@@ -307,7 +307,6 @@ const Game = () => {
                     onPieceDrop={makeMove}
                     boardOrientation={isFlipped ? 'black' : 'white'}
                     isDraggablePiece={isDragAllowed}
-                    animationDuration={200}
                     customBoardStyle={{
                       borderRadius: '12px',
                       boxShadow: '0 25px 50px -12px rgb(0 0 0 / 0.8)',
@@ -323,9 +322,9 @@ const Game = () => {
                     customPremoveLightSquareStyle={{
                       backgroundColor: '#F7DC6F'
                     }}
-                    dragHandleStyle={{
-                      cursor: 'grab'
-                    }}
+                    animationDuration={200}
+                    arePiecesDraggable={true}
+                    snapToCursor={true}
                   />
                 </div>
               </div>

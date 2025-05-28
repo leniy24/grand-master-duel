@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Crown, Flag, RotateCcw, Home, Circle } from 'lucide-react';
 import { toast } from 'sonner';
+import { algebraicToPosition, isValidPosition } from '@/lib/chess-validator';
 
 interface Player {
   name: string;
@@ -46,7 +47,6 @@ const Game = () => {
     }
   }, [navigate]);
 
-  // Timer logic
   useEffect(() => {
     if (!gameState || gameOver) return;
 
@@ -88,6 +88,15 @@ const Game = () => {
 
   const makeMove = useCallback((sourceSquare: string, targetSquare: string) => {
     try {
+      // Validate source and target positions
+      const sourcePos = algebraicToPosition(sourceSquare);
+      const targetPos = algebraicToPosition(targetSquare);
+      
+      if (!sourcePos || !targetPos || !isValidPosition(sourcePos) || !isValidPosition(targetPos)) {
+        toast.error('Invalid move position');
+        return false;
+      }
+
       const move = game.move({
         from: sourceSquare,
         to: targetSquare,
@@ -128,7 +137,8 @@ const Game = () => {
         return true;
       }
     } catch (error) {
-      console.log('Invalid move');
+      console.error('Invalid move:', error);
+      toast.error('Invalid move');
     }
     return false;
   }, [game, gameState]);
